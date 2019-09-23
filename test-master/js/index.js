@@ -1,14 +1,6 @@
-/* Set the width of the sidebar to 250px and the left margin of the page content to 250px */
-function openNav() {
-  document.getElementById("mySidebar").style.width = "250px";
-  document.getElementById("main").style.marginLeft = "242px";
-}
+// Based on an example:
+//https://github.com/don/cordova-plugin-ble-central
 
-/* Set the width of the sidebar to 0 and the left margin of the page content to 0 */
-function closeNav() {
-  document.getElementById("mySidebar").style.width = "0";
-  document.getElementById("main").style.marginLeft = "-8px";
-} 
 
 // ASCII only
 function bytesToString(buffer) {
@@ -37,16 +29,14 @@ var ConnDeviceId;
 var bleDeviceName;
 var deviceList =[];
 
-setTimeout("window.location.reload();",5000); //reload siden hvert 20. sekund. Dermed genindlæses Bluetooth-liste
-
+setTimeout("window.location.reload();",20000); //reload siden hvert 20. sekund. Dermed genindlæses Bluetooth-liste
+ 
 function onLoad(){
-    document.getElementById("bleDeviceList").innerHTML = "Funktion onload";
 	document.addEventListener('deviceready', onDeviceReady, false);
     bleDeviceList.addEventListener('touchstart', conn, false); // assume not scrolling
 }
 
 function onDeviceReady(){
-    document.getElementById("bleDeviceList").innerHTML = "OnDeviceReady";
 	refreshDeviceList();
 }
 
@@ -55,42 +45,25 @@ function refreshDeviceList(){
 	//deviceList =[];
 	document.getElementById("bleDeviceList").innerHTML = ''; // empties the list
 	if (cordova.platformId === 'android') { // Android filtering is broken
-		ble.scan([], 5, insertText, onError);
+		ble.scan([], 5, onDiscoverDevice, onError);
 	} else {
 		//alert("Disconnected");
-		ble.scan([blue.serviceUUID], 5, insertText, onError);
+		ble.scan([blue.serviceUUID], 5, onDiscoverDevice, onError);
 	}
 }
 
-/*function onDiscoverDevice(device){
-	//Make a list in html and show devises
-    if(device.name == "Elektronik" && device.name == "Have"){
-		var listItem = document.createElement('li'),
-		html = device.name+ "," + device.id;
-		listItem.innerHTML = html;
-		document.getElementById("bleDeviceList").appendChild(listItem);
-	} else if(device.name == "Elektronik" || device.name == "Have"){
-		var listItem = document.createElement('li'),
-		html = device.name+ "," + device.id;
-		listItem.innerHTML = html;
-		document.getElementById("bleDeviceList").appendChild(listItem);
-	} else {
-        var listItem = document.createElement('li'),
-		html = "test";
-		listItem.innerHTML = html;
-		document.getElementById("bleDeviceList").appendChild(listItem);
-    }
-}*/
 
-function insertText(device) {
-    document.getElementById("bleDeviceList").innerHTML = device;
-    
-    if(device.name == "Elektronik"){
-        document.getElementById("bleDeviceList").innerHTML = "Elektronik";
-    } else {
-        document.getElementById("bleDeviceList").innerHTML = "Ingen elektronik";
-    }
+function onDiscoverDevice(device){
+	//Make a list in html and show devises
+	if(device.name == "GruppeIoT"){
+		
+		var listItem = document.createElement('li'),
+		html = device.name+ "," + device.id;
+		listItem.innerHTML = html;
+		document.getElementById("bleDeviceList").appendChild(listItem);
+	}
 }
+
 
 function conn(){
 	var  deviceTouch= event.srcElement.innerHTML;
@@ -99,9 +72,11 @@ function conn(){
 	ConnDeviceId = deviceTouchArr[1];
 	bleDeviceName = deviceTouchArr[0];
 	document.getElementById("debugDiv").innerHTML += "<br>Debug: <br>"+deviceTouchArr[0]+"<br>"+deviceTouchArr[1]; //for debug:
+	if(bleDeviceName  == "STATUE")
+		test();
  }
+ 
 
 function onError(reason)  {
-    document.getElementById("bleDeviceList").innerHTML = "Fejl";
 	alert("ERROR: " + reason); // real apps should use notification.alert
 }
